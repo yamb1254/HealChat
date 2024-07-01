@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "../index.css";
+import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -36,22 +36,39 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <div className="wrapper">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="input-box">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <span className="icon">@</span>
+        </div>
+        <div className="input-box">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="icon">🔒</span>
+        </div>
+        <div className="remember-forget">
+          <label>
+            <input type="checkbox" /> Remember me
+          </label>
+          <a href="#">Forgot password?</a>
+        </div>
         <button type="submit">Login</button>
+        <div className="register-link">
+          <p>
+            Don't have an account? <a href="/signup">Sign Up</a>
+          </p>
+        </div>
       </form>
     </div>
   );

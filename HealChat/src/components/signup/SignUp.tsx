@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "../index.css";
+import "./SignUp.css"; // Or '../styles/signup.css' if you created a separate file
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -74,28 +74,42 @@ const SignUp = () => {
   };
 
   return (
-    <div className="container">
+    <div className="wrapper">
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="input-box">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <span className="icon">👤</span>
+        </div>
+        <div className="input-box">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <span className="icon">@</span>
+        </div>
+        <div className="input-box">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="icon">🔒</span>
+        </div>
         <button type="submit">Sign Up</button>
+        <div className="register-link">
+          <p>
+            Already have an account? <a href="/login">Login</a>
+          </p>
+        </div>
       </form>
     </div>
   );

@@ -1,0 +1,100 @@
+/* Container for the chat window */
+.chat-container {
+  max-width: 800px; /* Increased width */
+  margin: auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 65vh;
+}
+
+/* Header for the chat window */
+.chat-header {
+  background-color: #005f73; /* Matched with background image color */
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 20px; /* Increased font size */
+  font-weight: bold;
+}
+
+/* Container for the messages */
+.chat-messages {
+  flex: 1;
+  padding: 20px; /* Increased padding */
+  overflow-y: auto;
+}
+
+/* Single message bubble */
+.message {
+  margin-bottom: 20px; /* Increased margin */
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Message content */
+.message-content {
+  max-width: 70%; /* Increased max-width */
+  padding: 15px 20px; /* Increased padding */
+  border-radius: 20px; /* Adjusted border-radius */
+  position: relative;
+  font-size: 16px; /* Increased font size */
+}
+
+/* Styles for messages from other users */
+.message-content.other {
+  background-color: #f1f1f1;
+  margin-left: 10px;
+  align-self: flex-start; /* Align to the left */
+}
+
+/* Styles for messages from the user */
+.message-content.user {
+  background-color: #0a9396; /* Matched with background image color */
+  color: white;
+  margin-left: auto;
+  align-self: flex-end; /* Align to the right */
+}
+
+/* Avatar image for the messages */
+.message img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 10px; /* Added margin */
+}
+
+/* Container for the input box */
+.chat-input {
+  display: flex;
+  padding: 15px; /* Increased padding */
+  border-top: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+/* Input field for typing a message */
+.chat-input textarea {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 10px 15px; /* Adjusted padding */
+  font-size: 16px; /* Increased font size */
+  resize: none;
+  outline: none;
+}
+
+/* Button for sending a message */
+.chat-input button {
+  background-color: #005f73; /* Matched with background image color */
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 16px; /* Increased font size */
+}
