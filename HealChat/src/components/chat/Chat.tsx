@@ -1,34 +1,74 @@
 import React, { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPaperPlane,
+  faPaperclip,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
-
-const socket: Socket = io("http://localhost:4000"); // Backend WebSocket endpoint
 
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<
-    { content: string; sender: string }[]
+    { content: string; sender: string; imageUrl?: string }[]
   >([]);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const username = "JohnDoe"; // Example username, replace with actual logic
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    socket.on(
-      "receive_message",
-      (message: { content: string; sender: string }) => {
-        setMessages((prevMessages) => [...prevMessages, message]);
+  const sendMessage = async () => {
+    if (message.trim() !== "" || selectedImage) {
+      const userMessage = { content: message, sender: "user", imageUrl: "" };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append("image", selectedImage);
+        formData.append("content", message);
+        formData.append("userId", "1"); // Replace with actual user ID
+
+        // Handle image upload and message sending
+        fetch("http://localhost:5000/api/messages", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            setMessages((prevMessages) => [...prevMessages, data]);
+          })
+          .catch((error) => {
+            console.error("Error uploading image:", error);
+          });
+      } else {
+        try {
+          const response = await fetch(
+            "https://api.openai.com/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer YOUR_OPENAI_API_KEY`,
+              },
+              body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: message }],
+              }),
+            }
+          );
+          const data = await response.json();
+          const aiMessage = {
+            content: data.choices[0].message.content,
+            sender: "other",
+          };
+          setMessages((prevMessages) => [...prevMessages, aiMessage]);
+        } catch (error) {
+          console.error("Error sending message:", error);
+        }
       }
-    );
 
-    return () => {
-      socket.off("receive_message");
-    };
-  }, []);
-
-  const sendMessage = () => {
-    if (message.trim() !== "") {
-      const newMessage = { content: message, sender: "user" };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      socket.emit("send_message", newMessage);
       setMessage("");
+      setSelectedImage(null);
     }
   };
 
@@ -39,30 +79,65 @@ const Chat = () => {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    const names = name.split(" ");
+    const initials = names.map((name) => name[0]).join("");
+    return initials.slice(0, 2).toUpperCase();
+  };
+
+  const handleLogout = () => {
+    // Clear user session and redirect to login page
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div className="chat-container">
-      <div className="chat-header">Live Chat</div>
+      <div className="chat-header">
+        Heal Chat
+        <button className="logout-button" onClick={handleLogout}>
+          <FontAwesomeIcon icon={faSignOutAlt} />
+        </button>
+      </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className="message">
             {msg.sender === "other" && (
-              <img src="/path/to/other-avatar.png" alt="Avatar" />
+              <div className="avatar">{getInitials("OtherUser")}</div>
             )}
-            <div className={`message-content ${msg.sender}`}>{msg.content}</div>
+            <div className={`message-content ${msg.sender}`}>
+              {msg.imageUrl ? (
+                <img src={msg.imageUrl} alt="Uploaded" />
+              ) : (
+                msg.content
+              )}
+            </div>
             {msg.sender === "user" && (
-              <img src="/path/to/user-avatar.png" alt="Avatar" />
+              <div className="avatar">{getInitials(username)}</div>
             )}
           </div>
         ))}
       </div>
       <div className="chat-input">
+        <label htmlFor="imageUpload" className="image-upload-label">
+          <FontAwesomeIcon icon={faPaperclip} />
+        </label>
+        <input type="file" id="imageUpload" onChange={handleImageChange} />
         <textarea
-          placeholder="Type your message"
+          placeholder="Message Code Copilot"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage} className="send-button">
+          <FontAwesomeIcon icon={faPaperPlane} />
+        </button>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../api/client"; // Import the axios instance
 import Swal from "sweetalert2";
-import "./SignUp.css"; // Or '../styles/signup.css' if you created a separate file
+import "./SignUp.css";
+import axios from "axios";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ const SignUp = () => {
     }
 
     try {
-      await axios.post("/api/signup", { email, password, username });
+      await apiClient.post("/auth/signup", { email, password, username });
       Swal.fire({
         icon: "success",
         title: "Sign up successful",

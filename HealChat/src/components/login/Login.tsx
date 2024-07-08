@@ -1,20 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../api/client"; // Import the axios instance
 import Swal from "sweetalert2";
+import axios from "axios";
 import "./Login.css";
+import ForgotPassword from "../forgetpassword/ForgetPassword"; // Import the modal
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("email");
+    const savedPassword = localStorage.getItem("password");
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/api/login", { email, password });
+      const response = await apiClient.post("/auth/login", { email, password });
       localStorage.setItem("token", response.data.token);
+
+      if (rememberMe) {
+        localStorage.setItem("email", email);
+      } else {
+        localStorage.removeItem("email");
+      }
+
       Swal.fire({
         icon: "success",
         title: "Login successful",
@@ -33,6 +58,14 @@ const Login = () => {
         text: errorMessage,
       });
     }
+  };
+
+  const openForgotPassword = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeForgotPassword = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -59,9 +92,16 @@ const Login = () => {
         </div>
         <div className="remember-forget">
           <label>
-            <input type="checkbox" /> Remember me
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={handleRememberMeChange}
+            />{" "}
+            Remember me
           </label>
-          <a href="#">Forgot password?</a>
+          <a href="#" onClick={openForgotPassword}>
+            Forgot password?
+          </a>
         </div>
         <button type="submit">Login</button>
         <div className="register-link">
@@ -70,6 +110,7 @@ const Login = () => {
           </p>
         </div>
       </form>
+      <ForgotPassword isOpen={isModalOpen} onClose={closeForgotPassword} />
     </div>
   );
 };
