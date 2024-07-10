@@ -1,82 +1,115 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import User from "../models/userModel";
-import { config } from "../config/envConfig";
-import { generateToken } from "../utils/jwtUtils";
+import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import { config } from "../config/envConfig";
 
+// Function to handle user signup
 export const signup = async (req: Request, res: Response) => {
-  const { username, email, password } = req.body;
-  try {
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email is already registered" });
-    }
+  const { email, password, username } = req.body;
 
+  try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-      username,
+    const user = await User.create({
       email,
       password: hashedPassword,
+      username,
       role: "user",
     });
-    res.status(201).json({ message: "User created successfully" });
+
+    res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error });
   }
 };
 
+// Function to handle user login
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(404).json({ message: "User not found" });
     }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid password" });
     }
-    const token = generateToken(user.id);
-    res.status(200).json({ token, username: user.username });
+
+    const token = jwt.sign({ userId: user.id }, config.jwtSecret, {
+      expiresIn: "1h",
+    });
+
+    res
+      .status(200)
+      .json({ message: "Login successful", token, username: user.username });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error });
   }
 };
 
-export const forgotPassword = async (req: Request, res: Response) => {
-  const { email } = req.body;
+// Function to validate username and email for password reset
+export const validateUser = async (req: Request, res: Response) => {
+  const { username, email } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { username, email } });
     if (!user) {
-      return res.status(200).json({ message: "User not found" });
+      return res.status(404).json({ message: "Invalid username or email" });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: config.emailUser,
-        pass: config.emailPass,
-      },
+    const token = jwt.sign({ userId: user.id }, config.jwtSecret, {
+      expiresIn: "10m",
     });
 
-    const mailOptions = {
-      from: config.emailUser,
-      to: email,
-      subject: "Your HealChat Password",
-      text: `Here is your password: ${user.password}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).json({ message: "Error sending email" });
-      } else {
-        return res.status(200).json({ message: "Password sent to email" });
-      }
-    });
+    res.status(200).json({ message: "Validation successful", token });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+// Function to handle reset password
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded: any = jwt.verify(token, config.jwtSecret);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const user = await User.findByPk(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Invalid or expired token" });
+  }
+};
+
+// Add this function to get user information
+export const getUserInfo = async (req: Request, res: Response) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded: any = jwt.verify(token, config.jwtSecret);
+    const user = await User.findByPk(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ username: user.username, email: user.email });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
   }
 };

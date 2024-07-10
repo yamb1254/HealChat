@@ -4,7 +4,7 @@ import apiClient from "../../api/client"; // Import the axios instance
 import Swal from "sweetalert2";
 import axios from "axios";
 import "./Login.css";
-import ForgotPassword from "../forgetpassword/ForgetPassword"; // Import the modal
+import ForgotPasswordModal from "../forgetpassword/ForgetPassword"; // Import the modal
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,10 +15,8 @@ const Login = () => {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("email");
-    const savedPassword = localStorage.getItem("password");
-    if (savedEmail && savedPassword) {
+    if (savedEmail) {
       setEmail(savedEmail);
-      setPassword(savedPassword);
       setRememberMe(true);
     }
   }, []);
@@ -33,6 +31,7 @@ const Login = () => {
     try {
       const response = await apiClient.post("/auth/login", { email, password });
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("username", response.data.username);
 
       if (rememberMe) {
         localStorage.setItem("email", email);
@@ -60,12 +59,17 @@ const Login = () => {
     }
   };
 
-  const openForgotPassword = () => {
+  const openForgotPasswordModal = () => {
     setIsModalOpen(true);
   };
 
-  const closeForgotPassword = () => {
+  const closeForgotPasswordModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleValidated = (token: string) => {
+    setIsModalOpen(false);
+    navigate(`/reset-password/${token}`);
   };
 
   return (
@@ -99,7 +103,7 @@ const Login = () => {
             />{" "}
             Remember me
           </label>
-          <a href="#" onClick={openForgotPassword}>
+          <a href="#" onClick={openForgotPasswordModal}>
             Forgot password?
           </a>
         </div>
@@ -110,7 +114,11 @@ const Login = () => {
           </p>
         </div>
       </form>
-      <ForgotPassword isOpen={isModalOpen} onClose={closeForgotPassword} />
+      <ForgotPasswordModal
+        isOpen={isModalOpen}
+        onClose={closeForgotPasswordModal}
+        onValidated={handleValidated}
+      />
     </div>
   );
 };

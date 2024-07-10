@@ -1,10 +1,16 @@
 import { Router } from "express";
-import { signup, login, forgotPassword } from "../controllers/authController";
+import { login } from "../controllers/authController";
+import { signup } from "../controllers/authController";
+import { getUserInfo } from "../controllers/authController";
+import { validateUser } from "../controllers/authController";
+import { resetPassword } from "../controllers/authController";
 
 const router = Router();
 
-router.post("/for", () => console.log("hello"));
-router.post("/signup", signup);
 router.post("/login", login);
+router.post("/signup", signup);
+router.post("/validate-user", validateUser); // Ensure this line is correct
+router.post("/reset-password", resetPassword);
+router.get("/user-info", getUserInfo);
 
 export default router;

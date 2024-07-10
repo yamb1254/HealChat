@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,8 +14,16 @@ const Chat = () => {
     { content: string; sender: string; imageUrl?: string }[]
   >([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const username = "JohnDoe"; // Example username, replace with actual logic
+  const [username, setUsername] = useState<string>("");
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
   const sendMessage = async () => {
     if (message.trim() !== "" || selectedImage) {
@@ -94,6 +102,7 @@ const Chat = () => {
   const handleLogout = () => {
     // Clear user session and redirect to login page
     localStorage.removeItem("token");
+    localStorage.removeItem("username");
     navigate("/login");
   };
 

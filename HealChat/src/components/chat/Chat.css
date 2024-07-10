@@ -15,7 +15,7 @@
 
 /* Header for the chat window */
 .chat-header {
-  background-color: #3498db; /* Updated to match the background image */
+  background-color: rgb(28, 50, 68); /* Updated to match the background image */
   color: white;
   padding: 15px;
   text-align: center;
@@ -68,7 +68,11 @@
 
 /* Styles for messages from the user */
 .message-content.user {
-  background-color: #2980b9; /* Updated to match the background image */
+  background-color: rgb(
+    193,
+    214,
+    200
+  ); /* Updated to match the background image */
   color: white;
   margin-left: auto;
   align-self: flex-end; /* Align to the right */
@@ -79,7 +83,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #2980b9;
+  background-color: rgb(193, 214, 200);
   color: white;
   display: flex;
   align-items: center;
@@ -129,7 +133,7 @@
 .send-button {
   background-color: transparent;
   border: none;
-  color: #3498db; /* Updated to match the background image */
+  color: rgb(193, 214, 200); /* Updated to match the background image */
   cursor: pointer;
   font-size: 24px; /* Increased font size */
   margin-left: 10px;
@@ -144,7 +148,7 @@
 .image-upload-label {
   background-color: transparent;
   border: none;
-  color: #3498db; /* Updated to match the background image */
+  color: rgb(193, 214, 200); /* Updated to match the background image */
   cursor: pointer;
   font-size: 24px; /* Increased font size */
   margin-right: 35px; /* Space between icon and textarea */
