@@ -37,7 +37,7 @@ const Chat = () => {
         formData.append("userId", "1"); // Replace with actual user ID
 
         // Handle image upload and message sending
-        fetch("http://localhost:5000/api/messages", {
+        fetch("http://localhost:5010/api/messages", {
           method: "POST",
           body: formData,
         })
