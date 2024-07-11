@@ -26,6 +26,7 @@ export const signup = async (req: Request, res: Response) => {
 
 // Function to handle user login
 export const login = async (req: Request, res: Response) => {
+  console.log(`login:`, );
   const { email, password } = req.body;
 
   try {
@@ -53,6 +54,7 @@ export const login = async (req: Request, res: Response) => {
 
 // Function to validate username and email for password reset
 export const validateUser = async (req: Request, res: Response) => {
+  console.log(`validateUser:`, );
   const { username, email } = req.body;
 
   try {
