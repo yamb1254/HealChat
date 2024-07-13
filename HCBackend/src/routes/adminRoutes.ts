@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { getUsers } from "../controllers/adminController";
-import { verifyAdmin } from "../middlewares/authMiddleware";
 
 const router = Router();
 
-router.get("/users", verifyAdmin, getUsers);
+router.get("/users", getUsers);
 
 export default router;

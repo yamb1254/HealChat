@@ -27,52 +27,52 @@ const Chat = () => {
 
   const sendMessage = async () => {
     if (message.trim() !== "" || selectedImage) {
-      const userMessage = { content: message, sender: "user", imageUrl: "" };
+      const userMessage = { content: message, sender: "user", imageUrl: "" }; //fix user connected
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-      if (selectedImage) {
-        const formData = new FormData();
-        formData.append("image", selectedImage);
-        formData.append("content", message);
-        formData.append("userId", "1"); // Replace with actual user ID
+      const formData = new FormData();
+      formData.append("content", message);
+      formData.append("username", localStorage.getItem("username") || ""); // Replace with actual user ID
 
-        // Handle image upload and message sending
-        fetch("http://localhost:5000/api/messages", {
-          method: "POST",
-          body: formData,
+      const headers = new Headers();
+      headers.append("Authorization", localStorage.getItem("token") || "");
+
+      // Handle image upload and message sending
+      fetch("http://localhost:5000/api/chat/send", {
+        method: "POST",
+        body: formData,
+        headers,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setMessages((prevMessages) => [...prevMessages, data]);
         })
-          .then((response) => response.json())
-          .then((data) => {
-            setMessages((prevMessages) => [...prevMessages, data]);
-          })
-          .catch((error) => {
-            console.error("Error uploading image:", error);
-          });
-      } else {
-        try {
-          const response = await fetch(
-            "https://api.openai.com/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer YOUR_OPENAI_API_KEY`,
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: message }],
-              }),
-            }
-          );
-          const data = await response.json();
-          const aiMessage = {
-            content: data.choices[0].message.content,
-            sender: "other",
-          };
-          setMessages((prevMessages) => [...prevMessages, aiMessage]);
-        } catch (error) {
-          console.error("Error sending message:", error);
-        }
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
+      try {
+        const response = await fetch(
+          "https://api.openai.com/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer YOUR_OPENAI_API_KEY`,
+            },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [{ role: "user", content: message }],
+            }),
+          }
+        );
+        const data = await response.json();
+        const aiMessage = {
+          content: data.choices[0].message.content,
+          sender: "other",
+        };
+        setMessages((prevMessages) => [...prevMessages, aiMessage]);
+      } catch (error) {
+        console.error("Error sending message:", error);
       }
 
       setMessage("");

@@ -17,14 +17,15 @@ const upload = multer({ storage });
 export const uploadMiddleware = upload.single("image");
 
 export const sendMessage = async (req: Request, res: Response) => {
-  const { content } = req.body;
-  const userId = req.user?.userId;
+  const { username, content } = req.body;
+  console.log("hello", req.body);
+  // const userId = req.user?.userId;
 
+  const user = await User.findOne({ where: { username } });
+  const userId = user?.id;
   if (!userId) {
     return res.status(400).json({ error: "User ID is required" });
   }
-
-  const imageUrl = req.file ? req.file.path : null;
 
   try {
     const newMessage = await Chat.create({
