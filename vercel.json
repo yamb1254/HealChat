@@ -3,7 +3,7 @@
     "builds": [
       {
         "src": "HCBackend/src/index.ts",
-        "use": "@vercel/other"
+        "use": "@vercel/node"
       },
       {
         "src": "HealChat/vite.config.ts",
