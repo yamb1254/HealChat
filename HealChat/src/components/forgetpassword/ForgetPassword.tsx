@@ -3,6 +3,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "./ForgetPassword.css";
 
+// Define the base URL from the environment variable
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface ForgotPasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,7 +31,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/validate-user",
+        "${API_BASE_URL}/api/auth/validate-user",
         { username, email }
       );
       Swal.fire({

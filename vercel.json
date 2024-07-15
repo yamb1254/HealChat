@@ -12,7 +12,7 @@
     ],
     "routes": [
       {
-        "src": "/HCBackend/routes",
+        "src": "/HCBackend/(.*)",
         "dest": "/api/index.ts"
       },
       {

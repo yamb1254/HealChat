@@ -8,7 +8,7 @@ const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleResetPassword = async () => {
     if (!newPassword) {
       Swal.fire({
@@ -19,7 +19,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/auth/reset-password", {
+      await axios.post("${API_BASE_URL}/api/auth/reset-password", {
         token,
         newPassword,
       });
