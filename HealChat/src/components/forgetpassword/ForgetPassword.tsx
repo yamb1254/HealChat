@@ -31,7 +31,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const response = await axios.post(
-        "${API_BASE_URL}/api/auth/validate-user",
+        "/api/auth/validate-user",
         { username, email }
       );
       Swal.fire({
