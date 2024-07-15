@@ -9,7 +9,7 @@ const router = Router();
 
 router.post("/login", login);
 router.post("/signup", signup);
-router.post("/validate-user", validateUser); // Ensure this line is correct
+router.post("/validate-user", validateUser); 
 router.post("/reset-password", resetPassword);
 router.get("/user-info", getUserInfo);
 
