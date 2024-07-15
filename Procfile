@@ -1,1 +1,1 @@
-web: cd HCBackend && npm run build && npm run start
+web: cd HCBackend && npm install && npm run build && npm run start
