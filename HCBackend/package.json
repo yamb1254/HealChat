@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx ts-node src/index.ts",
-    "model": "cd src && cd llmmodel && python app.py"
+    "build": "ts-node src/index.ts",
+    "dev": "tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
