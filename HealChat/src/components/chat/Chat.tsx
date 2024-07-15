@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPaperPlane,
-  faPaperclip,
-  faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
 
 const Chat = () => {
@@ -27,47 +23,33 @@ const Chat = () => {
 
   const sendMessage = async () => {
     if (message.trim() !== "" || selectedImage) {
-      const userMessage = { content: message, sender: "user", imageUrl: "" }; //fix user connected
+      const userMessage = { content: message, sender: "user", imageUrl: "" };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       const formData = new FormData();
       formData.append("content", message);
-      formData.append("username", localStorage.getItem("username") || ""); // Replace with actual user ID
+      formData.append("username", localStorage.getItem("username") || "");
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
 
-      const headers = new Headers();
-      headers.append("Authorization", localStorage.getItem("token") || "");
-
-      // Handle image upload and message sending
-      fetch("http://localhost:5000/api/chat/send", {
-        method: "POST",
-        body: formData,
-        headers,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setMessages((prevMessages) => [...prevMessages, data]);
-        })
-        .catch((error) => {
-          console.error("Error uploading image:", error);
-        });
       try {
-        const response = await fetch(
-          "https://api.openai.com/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer YOUR_OPENAI_API_KEY`,
-            },
-            body: JSON.stringify({
-              model: "gpt-3.5-turbo",
-              messages: [{ role: "user", content: message }],
-            }),
-          }
-        );
+        // Call the Flask server
+        const response = await fetch("https://093b-104-154-83-69.ngrok-free.app/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: message }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
         const data = await response.json();
         const aiMessage = {
-          content: data.choices[0].message.content,
+          content: data.response,
           sender: "other",
         };
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
@@ -100,7 +82,6 @@ const Chat = () => {
   };
 
   const handleLogout = () => {
-    // Clear user session and redirect to login page
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/login");

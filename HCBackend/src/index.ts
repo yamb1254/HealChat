@@ -15,5 +15,5 @@ app.use("/api/chat", chatRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log("Environment configuration:", process.env);
+  // console.log("Environment configuration:", process.env);
 });
