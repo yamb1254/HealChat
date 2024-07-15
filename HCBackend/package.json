@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ts-node src/index.ts",
+    "build": "npx ts-node src/index.ts",
     "model": "cd src && cd llmmodel && python app.py"
   },
   "keywords": [],
