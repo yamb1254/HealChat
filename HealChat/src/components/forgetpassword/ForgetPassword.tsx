@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 import "./ForgetPassword.css";
 
 // Define the base URL from the environment variable
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -31,7 +30,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const response = await axios.post(
-        "/api/auth/validate-user",
+        "https://healchat-api-928fb5abbaa4.herokuapp.com/api/auth/validate-user",
         { username, email }
       );
       Swal.fire({

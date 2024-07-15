@@ -19,7 +19,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("/api/auth/reset-password", {
+      await axios.post("https://healchat-api-928fb5abbaa4.herokuapp.com/api/auth/reset-password", {
         token,
         newPassword,
       });

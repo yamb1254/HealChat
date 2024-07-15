@@ -13,10 +13,10 @@
     "routes": [
       {
         "src": "/HCBackend/(.*)",
-        "dest": "/api"
+        "dest": "/api/index.ts"
       },
       {
-        "src": "/healchat/(.*)",
+        "src": "/(.*)",
         "dest": "/HealChat/$1"
       }
     ]

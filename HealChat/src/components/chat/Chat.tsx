@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import apiClient from "../../api/client"; // Import the axios instance
 
 
 const Chat = () => {
