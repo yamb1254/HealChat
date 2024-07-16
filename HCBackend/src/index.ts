@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: ['https://heal-chat.vercel.app/', 'heal-chat-git-work-branch-yamb1254s-projects.vercel.app','http://localhost:3000'], // Add your frontend URL here
+  origin: ['https://ambitious-hill-0cd5d7c03.5.azurestaticapps.net','http://localhost:3000'], // Add your frontend URL here
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
