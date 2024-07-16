@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
-import apiClient from "../../api/client"; // Import the axios instance
 
 
 const Chat = () => {

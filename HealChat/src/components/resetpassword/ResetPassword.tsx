@@ -8,7 +8,6 @@ const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleResetPassword = async () => {
     if (!newPassword) {
       Swal.fire({
@@ -19,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("https://healchat-api-928fb5abbaa4.herokuapp.com/api/auth/reset-password", {
+      await axios.post("https://asp-liked-redbird.ngrok-free.app/api/auth/reset-password", {
         token,
         newPassword,
       });
