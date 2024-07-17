@@ -30,7 +30,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const response = await axios.post(
-        "https://asp-liked-redbird.ngrok-free.app/api/auth/login/validate-user",
+        "http://localhost:5000/api/auth/validate-user",
         { username, email }
       );
       Swal.fire({

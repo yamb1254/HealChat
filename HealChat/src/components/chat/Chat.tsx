@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
+import axios from 'axios';
+
 
 
 const Chat = () => {
@@ -23,42 +25,40 @@ const Chat = () => {
   }, []);
 
   const sendMessage = async () => {
-    if (message.trim() !== "" || selectedImage) {
-      const userMessage = { content: message, sender: "user", imageUrl: "" };
+    if (message.trim() !== '' || selectedImage) {
+      const userMessage = { content: message, sender: 'user', imageUrl: '' };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       const formData = new FormData();
-      formData.append("content", message);
-      formData.append("username", localStorage.getItem("username") || "");
+      formData.append('content', message);
+      formData.append('username', localStorage.getItem('username') || '');
       if (selectedImage) {
-        formData.append("image", selectedImage);
+        formData.append('image', selectedImage);
       }
 
       try {
-        // Call the Flask server
-        const response = await fetch("https://093b-104-154-83-69.ngrok-free.app/generate", {
-          method: "POST",
+        const response = await axios.post('http://localhost:5000/api/chat/send', formData, {
           headers: {
-            "Content-Type": "application/json",
+            'Authorization': `Bearer ${localStorage.getItem('token')}`, // Ensure Bearer format
+            'Content-Type': 'multipart/form-data',
           },
-          body: JSON.stringify({ text: message }),
         });
 
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        if (response.status !== 200 && response.status !== 201) {
+          throw new Error('Network response was not ok');
         }
 
-        const data = await response.json();
+        const data = response.data;
         const aiMessage = {
-          content: data.response,
-          sender: "other",
+          content: data.modelResponse,
+          sender: 'other',
         };
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.error('Error sending message:', error);
       }
 
-      setMessage("");
+      setMessage('');
       setSelectedImage(null);
     }
   };

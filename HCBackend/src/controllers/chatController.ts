@@ -3,6 +3,7 @@ import axios from "axios";
 import multer from "multer";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
+import OpenAI from "openai";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -16,6 +17,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single("image");
+
+
+// Initialize OpenAI with Hugging Face Inference API
+const openai = new OpenAI({
+  baseURL: "https://k8ru910giiqrflsa.us-east-1.aws.endpoints.huggingface.cloud/v1/",
+  apiKey: "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" // Replace with your actual Hugging Face API key
+});
 
 export const sendMessage = async (req: Request, res: Response) => {
   const { username, content } = req.body;
@@ -33,15 +41,27 @@ export const sendMessage = async (req: Request, res: Response) => {
       timestamp: new Date(),
     });
 
-    // Call the Python model server
-    const response = await axios.post('https://093b-104-154-83-69.ngrok-free.app/generate', { text: content });
-    const modelResponse = response.data.response;
+    // Call the Hugging Face model server using OpenAI client
+    const response = await openai.chat.completions.create({
+      model: "tgi",
+      messages: [
+        {
+          role: "user",
+          content: content
+        }
+      ],
+      max_tokens: 1000 // Adjust the max tokens as needed
+    });
+
+    const modelResponse = response.choices[0].message.content;
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
+    console.error("Error generating response:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 export const getMessages = async (req: Request, res: Response) => {
   try {

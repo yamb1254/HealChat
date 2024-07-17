@@ -7,18 +7,28 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.header("Authorization");
-  console.log(" hello", req.header("Authorization"));
-  //const token = req.cookies.
+  const authHeader = req.header("Authorization");
+  console.log("Authorization Header:", authHeader);
+
+  if (!authHeader) {
+    return res.status(401).json({ error: "Access denied" });
+  }
+
+  const token = authHeader.split(' ')[1]; // Extract the token
   if (!token) {
     return res.status(401).json({ error: "Access denied" });
   }
+
   try {
     const verified = jwt.verify(token, config.jwtSecret) as JwtPayload & {
       userId: number;
     };
-    if (verified) next();
-    else return res.status(401).json({ error: "Access denied" });
+    if (verified) {
+      req.user = verified; // Optionally, attach the user to the request
+      next();
+    } else {
+      return res.status(401).json({ error: "Access denied" });
+    }
   } catch (error) {
     res.status(400).json({ error: "Invalid token" });
   }

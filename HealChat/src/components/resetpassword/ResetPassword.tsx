@@ -18,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("https://asp-liked-redbird.ngrok-free.app/api/auth/login/reset-password", {
+      await axios.post("http://localhost:5000/api/auth/reset-password", {
         token,
         newPassword,
       });
