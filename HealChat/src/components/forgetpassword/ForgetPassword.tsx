@@ -30,7 +30,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/validate-user",
+        "healchatserver.azurewebsites.net/validate-user",
         { username, email }
       );
       Swal.fire({
