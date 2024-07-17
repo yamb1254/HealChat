@@ -18,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("healchatserver.azurewebsites.net/api/auth/reset-password", {
+      await axios.post("https://bczckdjlrc.loclx.io/api/auth/reset-password", {
         token,
         newPassword,
       });
