@@ -10,7 +10,8 @@ const port = process.env.PORT || 5000;
 app.use(cors({
   origin: ['https://ambitious-hill-0cd5d7c03.5.azurestaticapps.net','https://heal-chat.vercel.app/','https://heal-chat-yamb1254s-projects.vercel.app/','http://localhost:3000'], // Add your frontend URL here
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: 'Content-Type,Authorization'
 }));
 app.use(bodyParser.json());
 
