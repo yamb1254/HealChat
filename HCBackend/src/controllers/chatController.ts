@@ -19,7 +19,6 @@ const upload = multer({ storage });
 export const uploadMiddleware = upload.single("image");
 
 
-// Initialize OpenAI with Hugging Face Inference API
 const openai = new OpenAI({
   baseURL: "https://k8ru910giiqrflsa.us-east-1.aws.endpoints.huggingface.cloud/v1/",
   apiKey: "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" // Replace with your actual Hugging Face API key
