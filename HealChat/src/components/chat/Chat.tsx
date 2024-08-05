@@ -37,7 +37,7 @@ const Chat = () => {
       }
 
       try {
-        const response = await axios.post('http://localhost:5000/api/chat/send', formData, {
+        const response = await axios.post('https://healchat.onrender.com/api/chat/send', formData, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`, // Ensure Bearer format
             'Content-Type': 'multipart/form-data',
