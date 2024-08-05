@@ -96,7 +96,7 @@ const Chat: React.FC = () => {
     return (
       <div className={`message ${message.sender}`}>
         {message.sender === "other" && (
-          <div className="avatar">{getInitials("OtherUser")}</div>
+          <div className="avatar">{getInitials("HealChat")}</div>
         )}
         <div className={`message-content ${message.sender}`}>
           {message.imageUrl ? (
@@ -131,7 +131,7 @@ const Chat: React.FC = () => {
         </label>
         <input type="file" id="imageUpload" onChange={handleImageChange} />
         <textarea
-          placeholder="Message Code Copilot"
+          placeholder="Message HealChat"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
