@@ -11,13 +11,13 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
-  server: {
-    port: 3000,
-    strictPort: true,
-    host: true,
-    hmr: {
-      port: 3000,
-      host: "localhost",
+    server: {
+      proxy: {
+        '/api': {
+          target: 'https://healchat.onrender.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      }
     },
-  },
 });
