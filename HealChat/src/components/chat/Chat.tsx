@@ -4,14 +4,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
+interface Message {
+  content: string;
+  sender: string;
+  imageUrl?: string;
+}
 
-
-const Chat = () => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    { content: string; sender: string; imageUrl?: string }[]
-  >([]);
+const Chat: React.FC = () => {
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("");
 
@@ -26,7 +29,7 @@ const Chat = () => {
 
   const sendMessage = async () => {
     if (message.trim() !== '' || selectedImage) {
-      const userMessage = { content: message, sender: 'user', imageUrl: '' };
+      const userMessage: Message = { content: message, sender: 'user', imageUrl: '' };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       const formData = new FormData();
@@ -49,10 +52,11 @@ const Chat = () => {
         }
 
         const data = response.data;
-        const aiMessage = {
+        const aiMessage: Message = {
           content: data.modelResponse,
           sender: 'other',
         };
+        
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
       } catch (error) {
         console.error('Error sending message:', error);
@@ -88,6 +92,26 @@ const Chat = () => {
     navigate("/login");
   };
 
+  const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
+    return (
+      <div className={`message ${message.sender}`}>
+        {message.sender === "other" && (
+          <div className="avatar">{getInitials("OtherUser")}</div>
+        )}
+        <div className={`message-content ${message.sender}`}>
+          {message.imageUrl ? (
+            <img src={message.imageUrl} alt="Uploaded" />
+          ) : (
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          )}
+        </div>
+        {message.sender === "user" && (
+          <div className="avatar">{getInitials(username)}</div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="chat-container">
       <div className="chat-header">
@@ -98,21 +122,7 @@ const Chat = () => {
       </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (
-          <div key={index} className="message">
-            {msg.sender === "other" && (
-              <div className="avatar">{getInitials("OtherUser")}</div>
-            )}
-            <div className={`message-content ${msg.sender}`}>
-              {msg.imageUrl ? (
-                <img src={msg.imageUrl} alt="Uploaded" />
-              ) : (
-                msg.content
-              )}
-            </div>
-            {msg.sender === "user" && (
-              <div className="avatar">{getInitials(username)}</div>
-            )}
-          </div>
+          <ChatMessage key={index} message={msg} />
         ))}
       </div>
       <div className="chat-input">
