@@ -76,15 +76,17 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
 
     // Call the Llama 3 API
     const response = await queryLlama3API(content);
+    console.log("Done2!", response);
 
-    if (!response || !response.output) {
-      console.error("No generated text in API response");
-      res.status(500).json({ error: "Failed to generate response from the model" });
-      return;
-    }
+    // if (!response || !response.output) {
+    //   console.error("No generated text in API response");
+    //   res.status(500).json({ error: "Failed to generate response from the model" });
+    //   return;
+    // }
 
     // Join the array of tokens into a single string
     const modelResponse = response.output.join(" ");
+    console.log("Done3!", modelResponse);
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
