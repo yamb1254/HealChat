@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
 import multer from "multer";
+import dotenv from "dotenv";
+import Replicate from "replicate";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
 import fetch from "node-fetch";
+
+// Configure dotenv
+dotenv.config();
 
 // Multer storage setup for file uploads
 const storage = multer.diskStorage({
@@ -18,44 +23,47 @@ const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single("image");
 
-// Function to call Llama 3 API using fetch
-const queryLlama3API = async (data: object) => {
-  try {
-    const response = await fetch(
-      "https://mqtvwklh8zfev60c.us-east-1.aws.endpoints.huggingface.cloud",
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
+// Setup Replicate API
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN!,
+  userAgent: "https://www.npmjs.com/package/create-replicate",
+});
 
-    if (!response.ok) {
-      console.error("Error in API response:", response.status, response.statusText);
-      throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
-    }
+const model = "meta/meta-llama-3-70b-instruct:fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d";
 
-    const result = await response.json();
-    console.log("API response:", result);
-    return result;
-  } catch (error) {
-    console.error("Error querying Llama 3 API:", error);
-    throw error;
-  }
+// Function to call Replicate API using the Llama 3 model
+const queryLlama3API = async (prompt: string): Promise<any> => {
+  const input = {
+    top_p: 0.9,
+    prompt,
+    max_tokens: 512,
+    min_tokens: 0,
+    temperature: 0.6,
+    prompt_template: "system\n\nYou are a helpful assistantuser\n\n{prompt}assistant\n\n",
+    presence_penalty: 1.15,
+    frequency_penalty: 0.2,
+  };
+
+  console.log("Using model: %s", model);
+  console.log("With input: %O", input);
+
+  console.log("Running...");
+  const output = await replicate.run(model, { input });
+  console.log("Done!", output);
+
+  return output;
 };
 
-export const sendMessage = async (req: Request, res: Response) => {
+// Function to handle sending messages
+export const sendMessage = async (req: Request, res: Response): Promise<void> => {
   const { username, content } = req.body;
 
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
       console.error(`User not found: ${username}`);
-      return res.status(400).json({ error: "User not found" });
+      res.status(400).json({ error: "User not found" });
+      return;
     }
 
     const userId = user.id;
@@ -67,14 +75,15 @@ export const sendMessage = async (req: Request, res: Response) => {
     });
 
     // Call the Llama 3 API
-    const response = await queryLlama3API({ inputs: content, parameters: {} });
+    const response = await queryLlama3API(content);
 
-    if (!response || !response.generated_text) {
+    if (!response || !response.output) {
       console.error("No generated text in API response");
-      return res.status(500).json({ error: "Failed to generate response from the model" });
+      res.status(500).json({ error: "Failed to generate response from the model" });
+      return;
     }
 
-    const modelResponse = response.generated_text;
+    const modelResponse = response.output;
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
@@ -83,7 +92,8 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
-export const getMessages = async (req: Request, res: Response) => {
+// Function to get messages
+export const getMessages = async (req: Request, res: Response): Promise<void> => {
   try {
     const messages = await Chat.findAll({
       include: [{ model: User, attributes: ["username"] }],
