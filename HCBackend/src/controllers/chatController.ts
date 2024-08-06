@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import axios from "axios";
 import multer from "multer";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
-import OpenAI from "openai";
 
+// Multer storage setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -18,11 +17,22 @@ const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single("image");
 
-
-const openai = new OpenAI({
-  baseURL: "https://k8ru910giiqrflsa.us-east-1.aws.endpoints.huggingface.cloud/v1/",
-  apiKey: "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" // Replace with your actual Hugging Face API key
-});
+// Function to call Llama 3 API using fetch
+const queryLlama3API = async (data: object) => {
+  const response = await fetch(
+    "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B",
+    {
+      headers: {
+        Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+  const result = await response.json();
+  return result;
+};
 
 export const sendMessage = async (req: Request, res: Response) => {
   const { username, content } = req.body;
@@ -40,19 +50,10 @@ export const sendMessage = async (req: Request, res: Response) => {
       timestamp: new Date(),
     });
 
-    // Call the Hugging Face model server using OpenAI client
-    const response = await openai.chat.completions.create({
-      model: "tgi",
-      messages: [
-        {
-          role: "user",
-          content: content
-        }
-      ],
-      max_tokens: 1000 // Adjust the max tokens as needed
-    });
+    // Call the Llama 3 API
+    const response = await queryLlama3API({ inputs: content });
 
-    const modelResponse = response.choices[0].message.content;
+    const modelResponse = response.generated_text; // Adjust based on the API response structure
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
@@ -60,7 +61,6 @@ export const sendMessage = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 export const getMessages = async (req: Request, res: Response) => {
   try {
