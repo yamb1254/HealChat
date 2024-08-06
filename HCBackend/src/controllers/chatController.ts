@@ -25,7 +25,7 @@ const queryLlama3API = async (data: object) => {
       "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B",
       {
         headers: {
-          Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
+          Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
           "Content-Type": "application/json",
         },
         method: "POST",
