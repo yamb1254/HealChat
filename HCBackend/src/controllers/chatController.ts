@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import multer from "multer";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
+import fetch from "node-fetch";
 
 // Multer storage setup for file uploads
 const storage = multer.diskStorage({
@@ -19,19 +20,31 @@ export const uploadMiddleware = upload.single("image");
 
 // Function to call Llama 3 API using fetch
 const queryLlama3API = async (data: object) => {
-  const response = await fetch(
-    "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B",
-    {
-      headers: {
-        Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify(data),
+  try {
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B",
+      {
+        headers: {
+          Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Error in API response:", response.statusText);
+      throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
     }
-  );
-  const result = await response.json();
-  return result;
+
+    const result = await response.json();
+    console.log("API response:", result);
+    return result;
+  } catch (error) {
+    console.error("Error querying Llama 3 API:", error);
+    throw error;
+  }
 };
 
 export const sendMessage = async (req: Request, res: Response) => {
@@ -53,7 +66,12 @@ export const sendMessage = async (req: Request, res: Response) => {
     // Call the Llama 3 API
     const response = await queryLlama3API({ inputs: content });
 
-    const modelResponse = response.generated_text; // Adjust based on the API response structure
+    if (!response || !response.generated_text) {
+      console.error("No generated text in API response");
+      return res.status(500).json({ error: "Failed to generate response from the model" });
+    }
+
+    const modelResponse = response.generated_text;
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
