@@ -21,7 +21,7 @@ export const uploadMiddleware = upload.single("image");
 const queryGPT4API = async (data: object) => {
   try {
     const response = await fetch(
-      "https://api.openai.com/v1/engines/gpt-4/completions",
+      "https://api.openai.com/v1/engines/gpt-3.5/completions",
       {
         headers: {
           Accept: "application/json",
