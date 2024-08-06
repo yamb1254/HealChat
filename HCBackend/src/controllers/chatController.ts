@@ -3,6 +3,10 @@ import multer from "multer";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
 import fetch from "node-fetch";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Multer storage setup for file uploads
 const storage = multer.diskStorage({
@@ -17,19 +21,22 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 export const uploadMiddleware = upload.single("image");
 
-// Function to call GPT-4 API using fetch
-const queryGPT4API = async (data: object) => {
+// Function to call GPT-3.5 Turbo API using fetch
+const queryGPT3TurboAPI = async (messages: object) => {
   try {
     const response = await fetch(
-      "https://api.openai.com/v1/engines/gpt-3.5/completions",
+      "https://api.openai.com/v1/chat/completions",
       {
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${process.env.YOUR_OPENAI_API_KEY}`, // Replace with your actual OpenAI API key
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // Use environment variable for API key
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: messages,
+        }),
       }
     );
 
@@ -41,7 +48,7 @@ const queryGPT4API = async (data: object) => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error("Error querying GPT-4 API:", error);
+    console.error("Error querying GPT-3.5 Turbo API:", error);
     throw error;
   }
 };
@@ -64,19 +71,18 @@ export const sendMessage = async (req: Request, res: Response) => {
       timestamp: new Date(),
     });
 
-    // Call the GPT-4 API
-    const response = await queryGPT4API({
-      prompt: content,
-      max_tokens: 150, // Adjust as needed
-      temperature: 0.7, // Adjust as needed
-    });
+    // Call the GPT-3.5 Turbo API
+    const response = await queryGPT3TurboAPI([
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: content }
+    ]);
 
     if (!response || !response.choices || response.choices.length === 0) {
       console.error("No generated text in API response");
       return res.status(500).json({ error: "Failed to generate response from the model" });
     }
 
-    const modelResponse = response.choices[0].text;
+    const modelResponse = response.choices[0].message.content.trim();
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
