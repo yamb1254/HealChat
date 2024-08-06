@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import axios from "axios";
 import multer from "multer";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
-import OpenAI from "openai";
+import fetch from "node-fetch";
 
+// Multer storage setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -18,41 +18,63 @@ const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single("image");
 
+// Function to call Llama 3 API using fetch
+const queryLlama3API = async (data: object) => {
+  try {
+    const response = await fetch(
+      "https://mqtvwklh8zfev60c.us-east-1.aws.endpoints.huggingface.cloud",
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer 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", // Replace with your actual Hugging Face API key
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
 
-const openai = new OpenAI({
-  baseURL: "https://mqtvwklh8zfev60c.us-east-1.aws.endpoints.huggingface.cloud",
-  apiKey: "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" // Replace with your actual Hugging Face API key
-});
+    if (!response.ok) {
+      console.error("Error in API response:", response.status, response.statusText);
+      throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log("API response:", result);
+    return result;
+  } catch (error) {
+    console.error("Error querying Llama 3 API:", error);
+    throw error;
+  }
+};
 
 export const sendMessage = async (req: Request, res: Response) => {
   const { username, content } = req.body;
 
-  const user = await User.findOne({ where: { username } });
-  const userId = user?.id;
-  if (!userId) {
-    return res.status(400).json({ error: "User ID is required" });
-  }
-
   try {
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      console.error(`User not found: ${username}`);
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    const userId = user.id;
+
     const newMessage = await Chat.create({
       userId,
       content,
       timestamp: new Date(),
     });
 
-    // Call the Hugging Face model server using OpenAI client
-    const response = await openai.chat.completions.create({
-      model: "tgi",
-      messages: [
-        {
-          role: "user",
-          content: content
-        }
-      ],
-      max_tokens: 1000 // Adjust the max tokens as needed
-    });
+    // Call the Llama 3 API
+    const response = await queryLlama3API({ inputs: content, parameters: {} });
 
-    const modelResponse = response.choices[0].message.content;
+    if (!response || !response.generated_text) {
+      console.error("No generated text in API response");
+      return res.status(500).json({ error: "Failed to generate response from the model" });
+    }
+
+    const modelResponse = response.generated_text;
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
@@ -61,7 +83,6 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getMessages = async (req: Request, res: Response) => {
   try {
     const messages = await Chat.findAll({
@@ -69,6 +90,7 @@ export const getMessages = async (req: Request, res: Response) => {
     });
     res.status(200).json(messages);
   } catch (error) {
+    console.error("Error fetching messages:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
