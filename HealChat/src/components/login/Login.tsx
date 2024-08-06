@@ -5,12 +5,14 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import "./Login.css";
 import ForgotPasswordModal from "../forgetpassword/ForgetPassword"; // Import the modal
+import logo from "../../assets/icon.png"; // Import the logo
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true); // Show loading indicator
 
     try {
       const response = await apiClient.post("/auth/login", { email, password });
@@ -43,6 +46,7 @@ const Login = () => {
         icon: "success",
         title: "Login successful",
       }).then(() => {
+        setIsLoading(false); // Hide loading indicator
         navigate("/chat");
       });
     } catch (error: unknown) {
@@ -56,6 +60,7 @@ const Login = () => {
         title: "Login error",
         text: errorMessage,
       });
+      setIsLoading(false); // Hide loading indicator
     }
   };
 
@@ -74,6 +79,13 @@ const Login = () => {
 
   return (
     <div className="wrapper">
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner">
+            <img src={logo} alt="Loading..." />
+          </div>
+        </div>
+      )}
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="input-box">
