@@ -83,7 +83,8 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const modelResponse = response.output;
+    // Join the array of tokens into a single string
+    const modelResponse = response.output.join(" ");
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
