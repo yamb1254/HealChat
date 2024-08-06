@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane, faPaperclip, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPaperPlane,
+  faPaperclip,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
-import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   content: string;
@@ -17,6 +21,7 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false); // New state for typing indicator
 
   const navigate = useNavigate();
 
@@ -28,41 +33,52 @@ const Chat: React.FC = () => {
   }, []);
 
   const sendMessage = async () => {
-    if (message.trim() !== '' || selectedImage) {
-      const userMessage: Message = { content: message, sender: 'user', imageUrl: '' };
+    if (message.trim() !== "" || selectedImage) {
+      const userMessage: Message = {
+        content: message,
+        sender: "user",
+        imageUrl: "",
+      };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       const formData = new FormData();
-      formData.append('content', message);
-      formData.append('username', localStorage.getItem('username') || '');
+      formData.append("content", message);
+      formData.append("username", localStorage.getItem("username") || "");
       if (selectedImage) {
-        formData.append('image', selectedImage);
+        formData.append("image", selectedImage);
       }
 
       try {
-        const response = await axios.post('https://healchat.onrender.com/api/chat/send', formData, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`, // Ensure Bearer format
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        setIsTyping(true); // Show typing indicator
+        const response = await axios.post(
+          "https://healchat.onrender.com/api/chat/send",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         if (response.status !== 200 && response.status !== 201) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
 
         const data = response.data;
         const aiMessage: Message = {
           content: data.modelResponse,
-          sender: 'other',
+          sender: "other",
         };
-        
+
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
       } catch (error) {
-        console.error('Error sending message:', error);
+        console.error("Error sending message:", error);
+      } finally {
+        setIsTyping(false); // Hide typing indicator
       }
 
-      setMessage('');
+      setMessage("");
       setSelectedImage(null);
     }
   };
@@ -124,6 +140,16 @@ const Chat: React.FC = () => {
         {messages.map((msg, index) => (
           <ChatMessage key={index} message={msg} />
         ))}
+        {isTyping && (
+          <div className="message other">
+            <div className="avatar">{getInitials("HealChat")}</div>
+            <div className="message-content other typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        )}
       </div>
       <div className="chat-input">
         <label htmlFor="imageUpload" className="image-upload-label">
