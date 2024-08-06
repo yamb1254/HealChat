@@ -40,7 +40,7 @@ const Chat: React.FC = () => {
       }
 
       try {
-        const response = await axios.post('https://healchat.onrender.com/api/chat/send', formData, {
+        const response = await axios.post('https://healchat-1.onrender.com/api/chat/send', formData, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`, // Ensure Bearer format
             'Content-Type': 'multipart/form-data',
