@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
 import multer from "multer";
-import dotenv from "dotenv";
-import Replicate from "replicate";
 import Chat from "../models/chatModel";
 import User from "../models/userModel";
 import fetch from "node-fetch";
-
-// Configure dotenv
-dotenv.config();
 
 // Multer storage setup for file uploads
 const storage = multer.diskStorage({
@@ -20,73 +15,68 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 export const uploadMiddleware = upload.single("image");
 
-// Setup Replicate API
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN!,
-  userAgent: "https://www.npmjs.com/package/create-replicate",
-});
+// Function to call GPT-4 API using fetch
+const queryGPT4API = async (data: object) => {
+  try {
+    const response = await fetch(
+      "https://api.openai.com/v1/engines/gpt-4/completions",
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${process.env.YOUR_OPENAI_API_KEY}`, // Replace with your actual OpenAI API key
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
 
-const model = "meta/meta-llama-3-70b-instruct:fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d";
+    if (!response.ok) {
+      console.error("Error in API response:", response.status, response.statusText);
+      throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+    }
 
-// Function to call Replicate API using the Llama 3 model
-const queryLlama3API = async (prompt: string): Promise<any> => {
-  const input = {
-    top_p: 0.9,
-    prompt,
-    max_tokens: 512,
-    min_tokens: 0,
-    temperature: 0.6,
-    prompt_template: "system\n\nYou are a helpful assistantuser\n\n{prompt}assistant\n\n",
-    presence_penalty: 1.15,
-    frequency_penalty: 0.2,
-  };
-
-  console.log("Using model: %s", model);
-  console.log("With input: %O", input);
-
-  console.log("Running...");
-  const output = await replicate.run(model, { input });
-  console.log("Done!", output);
-
-  return output;
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error querying GPT-4 API:", error);
+    throw error;
+  }
 };
 
-// Function to handle sending messages
-export const sendMessage = async (req: Request, res: Response): Promise<void> => {
+// Endpoint to send a message
+export const sendMessage = async (req: Request, res: Response) => {
   const { username, content } = req.body;
 
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
       console.error(`User not found: ${username}`);
-      res.status(400).json({ error: "User not found" });
-      return;
+      return res.status(400).json({ error: "User not found" });
     }
 
     const userId = user.id;
-
     const newMessage = await Chat.create({
       userId,
       content,
       timestamp: new Date(),
     });
 
-    // Call the Llama 3 API
-    const response = await queryLlama3API(content);
-    console.log("Done2!", response);
+    // Call the GPT-4 API
+    const response = await queryGPT4API({
+      prompt: content,
+      max_tokens: 150, // Adjust as needed
+      temperature: 0.7, // Adjust as needed
+    });
 
-    // if (!response || !response.output) {
-    //   console.error("No generated text in API response");
-    //   res.status(500).json({ error: "Failed to generate response from the model" });
-    //   return;
-    // }
+    if (!response || !response.choices || response.choices.length === 0) {
+      console.error("No generated text in API response");
+      return res.status(500).json({ error: "Failed to generate response from the model" });
+    }
 
-    // Join the array of tokens into a single string
-    const modelResponse = response.output.join(" ");
-    console.log("Done3!", modelResponse);
+    const modelResponse = response.choices[0].text;
 
     res.status(201).json({ newMessage, modelResponse });
   } catch (error) {
@@ -95,8 +85,8 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-// Function to get messages
-export const getMessages = async (req: Request, res: Response): Promise<void> => {
+// Endpoint to get all messages
+export const getMessages = async (req: Request, res: Response) => {
   try {
     const messages = await Chat.findAll({
       include: [{ model: User, attributes: ["username"] }],
