@@ -51,7 +51,7 @@ const Chat: React.FC = () => {
       try {
         setIsTyping(true); // Show typing indicator
         const response = await axios.post(
-          "https://healchat.onrender.com/api/chat/send",
+          "https://healchat-1.onrender.com/api/chat/send",
           formData,
           {
             headers: {

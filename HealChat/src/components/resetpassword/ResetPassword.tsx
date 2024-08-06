@@ -18,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post("https://healchat.onrender.com/api/auth/reset-password", {
+      await axios.post("https://healchat-1.onrender.com/api/auth/reset-password", {
         token,
         newPassword,
       });
