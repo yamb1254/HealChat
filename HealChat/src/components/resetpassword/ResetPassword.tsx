@@ -7,21 +7,34 @@ import "./ResetPassword.css";
 const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
+  const [validatePassword, setValidatePassword] = useState("");
   const navigate = useNavigate();
+
   const handleResetPassword = async () => {
-    if (!newPassword) {
+    if (!newPassword || !validatePassword) {
       Swal.fire({
         icon: "error",
-        title: "Please enter a new password",
+        title: "Please enter and validate the new password",
+      });
+      return;
+    }
+
+    if (newPassword !== validatePassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Passwords do not match",
       });
       return;
     }
 
     try {
-      await axios.post("https://healchat.onrender.com/api/auth/reset-password", {
-        token,
-        newPassword,
-      });
+      await axios.post(
+        "https://healchat.onrender.com/api/auth/reset-password",
+        {
+          token,
+          newPassword,
+        }
+      );
       Swal.fire({
         icon: "success",
         title: "Password reset successful",
@@ -50,6 +63,12 @@ const ResetPassword = () => {
         placeholder="Enter new password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Validate new password"
+        value={validatePassword}
+        onChange={(e) => setValidatePassword(e.target.value)}
       />
       <button onClick={handleResetPassword}>Reset Password</button>
     </div>

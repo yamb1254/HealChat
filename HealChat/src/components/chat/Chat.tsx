@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,6 +9,7 @@ import {
 import "./Chat.css";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import logo from "../../assets/icon.png";
 
 interface Message {
   content: string;
@@ -22,8 +23,18 @@ const Chat: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false); // New state for typing indicator
+  const [isSending, setIsSending] = useState<boolean>(false);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -34,6 +45,8 @@ const Chat: React.FC = () => {
 
   const sendMessage = async () => {
     if (message.trim() !== "" || selectedImage) {
+      setIsSending(true);
+
       const userMessage: Message = {
         content: message,
         sender: "user",
@@ -75,9 +88,10 @@ const Chat: React.FC = () => {
       } catch (error) {
         console.error("Error sending message:", error);
       } finally {
-        setIsTyping(false); // Hide typing indicator
+        setIsTyping(false);
+        setIsSending(false);
       }
-
+      setIsSending(false);
       setMessage("");
       setSelectedImage(null);
     }
@@ -112,7 +126,9 @@ const Chat: React.FC = () => {
     return (
       <div className={`message ${message.sender}`}>
         {message.sender === "other" && (
-          <div className="avatar">{getInitials("HealChat")}</div>
+          <div className="avatar">
+            <img src={logo} alt="HealChat Logo" className="avatar-logo" />
+          </div>
         )}
         <div className={`message-content ${message.sender}`}>
           {message.imageUrl ? (
@@ -142,7 +158,9 @@ const Chat: React.FC = () => {
         ))}
         {isTyping && (
           <div className="message other">
-            <div className="avatar">{getInitials("HealChat")}</div>
+            <div className="avatar">
+              <img src={logo} alt="HealChat Logo" className="avatar-logo" />
+            </div>
             <div className="message-content other typing-indicator">
               <span></span>
               <span></span>
@@ -150,6 +168,7 @@ const Chat: React.FC = () => {
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
       <div className="chat-input">
         <label htmlFor="imageUpload" className="image-upload-label">
@@ -161,8 +180,13 @@ const Chat: React.FC = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
+          disabled={isSending}
         />
-        <button onClick={sendMessage} className="send-button">
+        <button
+          onClick={sendMessage}
+          className="send-button"
+          disabled={isSending}
+        >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
       </div>
