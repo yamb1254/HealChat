@@ -63,7 +63,7 @@ const Chat: React.FC = () => {
 
       try {
         setIsTyping(true); // Show typing indicator
-        const response = await apiClient.post("/chat/sand", formData, {
+        const response = await apiClient.post("/chat/send", formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data",
