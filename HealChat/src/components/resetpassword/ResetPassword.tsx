@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./ResetPassword.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons/faSignOutAlt";
+import apiClient from "../../api/client";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -28,13 +31,11 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post(
-        "https://healchat.onrender.com/api/auth/reset-password",
-        {
-          token,
-          newPassword,
-        }
-      );
+      const response = await apiClient.post("/auth//reset-password", {
+        token,
+        newPassword,
+      });
+      console.log(response.data);
       Swal.fire({
         icon: "success",
         title: "Password reset successful",
@@ -55,6 +56,12 @@ const ResetPassword = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    navigate("/login");
+  };
+
   return (
     <div className="reset-password-container">
       <h2>Reset Password</h2>
@@ -71,6 +78,10 @@ const ResetPassword = () => {
         onChange={(e) => setValidatePassword(e.target.value)}
       />
       <button onClick={handleResetPassword}>Reset Password</button>
+      <button onClick={handleLogout}>
+        Cencel
+        <FontAwesomeIcon icon={faSignOutAlt} />
+      </button>
     </div>
   );
 };

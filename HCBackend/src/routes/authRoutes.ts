@@ -12,6 +12,5 @@ router.post("/signup", signup);
 router.post("/validate-user", validateUser);
 router.post("/reset-password", resetPassword);
 router.get("/user-info", getUserInfo);
-console.log("hey");
 
 export default router;

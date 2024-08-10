@@ -7,9 +7,9 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Chat.css";
-import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import logo from "../../assets/icon.png";
+import apiClient from "../../api/client";
 
 interface Message {
   content: string;
@@ -63,16 +63,12 @@ const Chat: React.FC = () => {
 
       try {
         setIsTyping(true); // Show typing indicator
-        const response = await axios.post(
-          "https://healchat.onrender.com/api/chat/send",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await apiClient.post("/chat/sand", formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         if (response.status !== 200 && response.status !== 201) {
           throw new Error("Network response was not ok");

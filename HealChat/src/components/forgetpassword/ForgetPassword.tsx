@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./ForgetPassword.css";
+import apiClient from "../../api/client";
 
 // Define the base URL from the environment variable
 
@@ -29,10 +30,10 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     }
 
     try {
-      const response = await axios.post(
-        "https://healchat.onrender.com/api/auth/validate-user",
-        { username, email }
-      );
+      const response = await apiClient.post("/auth/validate-user", {
+        email,
+        username,
+      });
       Swal.fire({
         icon: "success",
         title: "Validation successful",
