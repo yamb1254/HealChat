@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../../api/client"; // Import the axios instance
+import apiClient from "../../api/client";
 import Swal from "sweetalert2";
 import axios from "axios";
 import "./Login.css";
-import ForgotPasswordModal from "../forgetpassword/ForgetPassword"; // Import the modal
-import logo from "../../assets/icon.png"; // Import the logo
+import ForgotPasswordModal from "../forgetpassword/ForgetPassword";
+import logo from "../../assets/icon.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Show loading indicator
+    setIsLoading(true);
 
     try {
       const response = await apiClient.post("/auth/login", { email, password });

@@ -3,25 +3,39 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./ResetPassword.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons/faSignOutAlt";
+import apiClient from "../../api/client";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
+  const [validatePassword, setValidatePassword] = useState("");
   const navigate = useNavigate();
+
   const handleResetPassword = async () => {
-    if (!newPassword) {
+    if (!newPassword || !validatePassword) {
       Swal.fire({
         icon: "error",
-        title: "Please enter a new password",
+        title: "Please enter and validate the new password",
+      });
+      return;
+    }
+
+    if (newPassword !== validatePassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Passwords do not match",
       });
       return;
     }
 
     try {
-      await axios.post("https://healchat.onrender.com/api/auth/reset-password", {
+      const response = await apiClient.post("/auth//reset-password", {
         token,
         newPassword,
       });
+      console.log(response.data);
       Swal.fire({
         icon: "success",
         title: "Password reset successful",
@@ -42,6 +56,12 @@ const ResetPassword = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    navigate("/login");
+  };
+
   return (
     <div className="reset-password-container">
       <h2>Reset Password</h2>
@@ -51,7 +71,17 @@ const ResetPassword = () => {
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
       />
+      <input
+        type="password"
+        placeholder="Validate new password"
+        value={validatePassword}
+        onChange={(e) => setValidatePassword(e.target.value)}
+      />
       <button onClick={handleResetPassword}>Reset Password</button>
+      <button onClick={handleLogout}>
+        Cencel
+        <FontAwesomeIcon icon={faSignOutAlt} />
+      </button>
     </div>
   );
 };

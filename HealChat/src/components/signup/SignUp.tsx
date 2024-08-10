@@ -22,7 +22,7 @@ const SignUp = () => {
   };
 
   const validateUsername = (username: string) => {
-    const re = /^[A-Za-z][A-Za-z\d]{0,7}$/;
+    const re = /^[A-Za-z][A-Za-z\d]{0,10}$/;
     return re.test(username);
   };
 
