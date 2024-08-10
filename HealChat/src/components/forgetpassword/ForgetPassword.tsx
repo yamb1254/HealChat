@@ -3,8 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "./ForgetPassword.css";
 import apiClient from "../../api/client";
-
-// Define the base URL from the environment variable
+import logo from "../../assets/icon.png";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -19,8 +18,10 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleValidate = async () => {
+    setIsLoading(true);
     if (!username || !email) {
       Swal.fire({
         icon: "error",
@@ -39,6 +40,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
         title: "Validation successful",
       });
       onValidated(response.data.token);
+      setIsLoading(false);
     } catch (error: unknown) {
       let errorMessage = "An error occurred. Please try again.";
       if (axios.isAxiosError(error) && error.response?.data.message) {
@@ -50,6 +52,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
         title: "Error",
         text: errorMessage,
       });
+      setIsLoading(false);
     }
   };
 
@@ -59,6 +62,13 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
   return (
     <div className="modal-overlay">
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner">
+            <img src={logo} alt="Loading..." />
+          </div>
+        </div>
+      )}
       <div className="modal">
         <h2>Forgot Password</h2>
         <input

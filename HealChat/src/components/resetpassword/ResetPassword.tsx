@@ -13,6 +13,11 @@ const ResetPassword = () => {
   const [validatePassword, setValidatePassword] = useState("");
   const navigate = useNavigate();
 
+  const validatePasswordR = (password: string) => {
+    const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+    return re.test(password);
+  };
+
   const handleResetPassword = async () => {
     if (!newPassword || !validatePassword) {
       Swal.fire({
@@ -26,6 +31,15 @@ const ResetPassword = () => {
       Swal.fire({
         icon: "error",
         title: "Passwords do not match",
+      });
+      return;
+    }
+
+    if (!validatePasswordR(newPassword)) {
+      Swal.fire({
+        icon: "error",
+        title:
+          "Password must be 8-16 characters long and contain letters and numbers",
       });
       return;
     }
