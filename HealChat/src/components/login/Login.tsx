@@ -12,7 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Login = () => {
         icon: "success",
         title: "Login successful",
       }).then(() => {
-        setIsLoading(false); // Hide loading indicator
+        setIsLoading(false);
         navigate("/chat");
       });
     } catch (error: unknown) {
@@ -60,7 +60,7 @@ const Login = () => {
         title: "Login error",
         text: errorMessage,
       });
-      setIsLoading(false); // Hide loading indicator
+      setIsLoading(false);
     }
   };
 

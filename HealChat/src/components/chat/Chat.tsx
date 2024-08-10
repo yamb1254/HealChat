@@ -22,15 +22,22 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("");
-  const [isTyping, setIsTyping] = useState<boolean>(false); // New state for typing indicator
+  const [isTyping, setIsTyping] = useState<boolean>(false);
   const [isSending, setIsSending] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null); // Ref for the textarea
   const navigate = useNavigate();
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (!isSending) {
+      textareaRef.current?.focus();
+    }
+  }, [isSending]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,57 +51,60 @@ const Chat: React.FC = () => {
   }, []);
 
   const sendMessage = async () => {
-    if (message.trim() !== "" || selectedImage) {
-      setIsSending(true);
+    if (isSending || (message.trim() === "" && !selectedImage)) {
+      return;
+    }
 
-      const userMessage: Message = {
-        content: message,
-        sender: "user",
-        imageUrl: "",
+    setIsSending(true);
+
+    const userMessage: Message = {
+      content: message,
+      sender: "user",
+      imageUrl: "",
+    };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+    const formData = new FormData();
+    formData.append("content", message);
+    formData.append("username", localStorage.getItem("username") || "");
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+
+    try {
+      setIsTyping(true);
+      const response = await apiClient.post("/chat/send", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = response.data;
+      const aiMessage: Message = {
+        content: data.modelResponse,
+        sender: "other",
       };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-      const formData = new FormData();
-      formData.append("content", message);
-      formData.append("username", localStorage.getItem("username") || "");
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
-
-      try {
-        setIsTyping(true); // Show typing indicator
-        const response = await apiClient.post("/chat/send", formData, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        if (response.status !== 200 && response.status !== 201) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = response.data;
-        const aiMessage: Message = {
-          content: data.modelResponse,
-          sender: "other",
-        };
-
-        setMessages((prevMessages) => [...prevMessages, aiMessage]);
-      } catch (error) {
-        console.error("Error sending message:", error);
-      } finally {
-        setIsTyping(false);
-        setIsSending(false);
-      }
+      setMessages((prevMessages) => [...prevMessages, aiMessage]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsTyping(false);
       setIsSending(false);
       setMessage("");
-      setSelectedImage(null);
+      textareaRef.current?.focus();
     }
+
+    setSelectedImage(null);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !isSending) {
       e.preventDefault();
       sendMessage();
     }
@@ -172,6 +182,7 @@ const Chat: React.FC = () => {
         </label>
         <input type="file" id="imageUpload" onChange={handleImageChange} />
         <textarea
+          ref={textareaRef}
           placeholder="Message HealChat"
           value={message}
           onChange={(e) => setMessage(e.target.value)}

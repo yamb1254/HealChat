@@ -1,4 +1,3 @@
-/* Body styles with background image */
 body {
   font-family: Arial, sans-serif;
   background: url("/HealChat_background_adjusted_caption.jpg") no-repeat center
@@ -12,7 +11,6 @@ body {
   color: #333;
 }
 
-/* Wrapper styles */
 .wrapper {
   width: 420px;
   background: rgba(0, 0, 0, 0.75);
@@ -23,13 +21,11 @@ body {
   text-align: center;
 }
 
-/* Heading styles */
 .wrapper h2 {
   font-size: 36px;
   margin-bottom: 20px;
 }
 
-/* Input box styles */
 .wrapper .input-box {
   position: relative;
   width: 84%;
@@ -61,7 +57,6 @@ body {
   font-size: 16px;
 }
 
-/* Remember and forget styles */
 .wrapper .remember-forget {
   display: flex;
   justify-content: space-between;
@@ -83,7 +78,6 @@ body {
   text-decoration: underline;
 }
 
-/* Button styles */
 .wrapper button {
   width: 80%;
   height: 45px;
@@ -98,7 +92,10 @@ body {
   font-weight: 700;
 }
 
-/* Register link styles */
+.wrapper button:hover {
+  background-color: rgb(193, 214, 200);
+}
+
 .wrapper .register-link {
   font-size: 14.5px;
   text-align: center;

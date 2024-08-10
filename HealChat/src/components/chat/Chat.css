@@ -20,9 +20,8 @@
   }
 }
 
-/* Header for the chat window */
 .chat-header {
-  background-color: rgb(28, 50, 68);
+  background-color: rgb(193, 214, 200);
   color: white;
   padding: 15px;
   text-align: center;
@@ -31,7 +30,6 @@
   position: relative;
 }
 
-/* Logout button in the header */
 .logout-button {
   position: absolute;
   top: 50%;
@@ -44,14 +42,12 @@
   transform: translateY(-50%);
 }
 
-/* Container for the messages */
 .chat-messages {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
 }
 
-/* Single message bubble */
 .message {
   margin-bottom: 20px;
   display: flex;
@@ -66,7 +62,6 @@
   justify-content: flex-start;
 }
 
-/* Message content */
 .message-content {
   max-width: 70%;
   padding: 15px 20px;
@@ -86,7 +81,8 @@
 }
 
 .message-content.user {
-  background-color: #1c3244;
+  background-color: rgb(193, 214, 200);
+
   color: white;
 }
 
@@ -116,7 +112,6 @@
   border-radius: 10px;
 }
 
-/* Container for the input box */
 .chat-input {
   display: flex;
   align-items: center;
@@ -160,7 +155,6 @@
   margin-right: 10px;
 }
 
-/* Typing indicator container */
 .typing-indicator {
   display: flex;
   align-items: center;
