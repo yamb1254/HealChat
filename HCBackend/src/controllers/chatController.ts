@@ -20,8 +20,8 @@ export const uploadMiddleware = upload.single("image");
 
 
 const openai = new OpenAI({
-  baseURL: "https://k8ru910giiqrflsa.us-east-1.aws.endpoints.huggingface.cloud/v1/",
-  apiKey: "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" // Replace with your actual Hugging Face API key
+  baseURL: process.env.HUGININGFACE_BASEURL,
+  apiKey: process.env.HUGININGFACE_APIKEY
 });
 
 export const sendMessage = async (req: Request, res: Response) => {
