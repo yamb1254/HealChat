@@ -2,25 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "HCBackend/src/index.ts",
+      "src": "src/index.tsx",
       "use": "@vercel/node"
     },
     {
-      "src": "HealChat/vite.config.ts",
+      "src": "vite.config.ts",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "HealChat/dist"  
+        "distDir": "dist"
       }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "HCBackend/src/index.ts"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/HealChat/dist/$1"  
+      "dest": "/index.html"
     }
   ]
 }
