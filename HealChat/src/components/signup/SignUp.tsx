@@ -56,7 +56,12 @@ const SignUp = () => {
     }
 
     try {
-      await apiClient.post("/auth/signup", { email, password, username });
+      const response = await apiClient.post("/auth/signup", {
+        email,
+        password,
+        username,
+      });
+      localStorage.setItem("role", response.data.role);
       Swal.fire({
         icon: "success",
         title: "Sign up successful",
