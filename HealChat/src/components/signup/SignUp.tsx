@@ -4,11 +4,13 @@ import apiClient from "../../api/client"; // Import the axios instance
 import Swal from "sweetalert2";
 import "./SignUp.css";
 import axios from "axios";
+import logo from "../../assets/icon.png";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
@@ -28,6 +30,7 @@ const SignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if (!validateEmail(email)) {
       Swal.fire({
         icon: "error",
@@ -58,6 +61,7 @@ const SignUp = () => {
         icon: "success",
         title: "Sign up successful",
       }).then(() => {
+        setIsLoading(false);
         navigate("/login");
       });
     } catch (error: unknown) {
@@ -71,11 +75,19 @@ const SignUp = () => {
         title: "Sign up error",
         text: errorMessage,
       });
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="wrapper">
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner">
+            <img src={logo} alt="Loading..." />
+          </div>
+        </div>
+      )}
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <div className="input-box">
