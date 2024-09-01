@@ -1,7 +1,6 @@
-![9580bf1a-58f2-4856-b073-be1d461c7191](https://github.com/user-attachments/assets/9369f93d-7457-400c-89b6-bfca049fae44)
 
 # Heal-Chat
-![Uploading 9580bf1a-58f2-4856-b073-be1d461c7191.svg…]()
+![icon](https://github.com/user-attachments/assets/ceb01c35-4aae-4733-a68e-cd15b43fb691)
 
 
 ## Overview
