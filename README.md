@@ -1,10 +1,8 @@
-Here's a template for a README file that you can use for your Heal-Chat project on GitHub. You can customize it as needed:
-
----
+![9580bf1a-58f2-4856-b073-be1d461c7191](https://github.com/user-attachments/assets/9369f93d-7457-400c-89b6-bfca049fae44)
 
 # Heal-Chat
+![Uploading 9580bf1a-58f2-4856-b073-be1d461c7191.svg…]()
 
-![Heal-Chat Logo](link-to-your-logo-if-you-have-one)
 
 ## Overview
 
