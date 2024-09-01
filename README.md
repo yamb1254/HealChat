@@ -72,6 +72,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For any inquiries, please contact [Yam Biton](mailto:yamb1254@gmail.com).
 
----
-
-Replace placeholders like "link-to-your-logo-if-you-have-one" with actual links or details specific to your project. You can also add more sections as needed.
