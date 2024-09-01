@@ -70,7 +70,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any inquiries, please contact [Your Name](mailto:yamb1254@gmail.com).
+For any inquiries, please contact [Yam Biton](mailto:yamb1254@gmail.com).
 
 ---
 
